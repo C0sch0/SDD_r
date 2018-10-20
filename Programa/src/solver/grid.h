@@ -1,42 +1,49 @@
 #pragma once
 #include <stdbool.h>
 
+
 // Grid and nodes def
 
-struct grid_structure
-{
-  int rows;
-  int cols;
-  struct cell_structure *** data;
-  struct cell_structure ** cells;
-  int * top_restrictions; // Positive restriction
-  int * bottom_restrictions; // Negative restriction
-  int * right_restrictions; // Negative restriction
-  int * left_restrictions; // Positive restriction
-};
-
-struct cell_structure
-{
-  int polarity; // 1 (positive), 0 (neutral), -1 neg
+struct cell {
   int position_x;
   int position_y;
   int other_half_x;
   int other_half_y;
-  bool direccion;
+  bool direction; // Magnetto pa arriba o pa abaho
+  int polarity; // 1 (positive), 0 (neutral), -1 neg
 };
 
-typedef struct cell_structure Cell;
-typedef struct grid_structure Grid;
+struct grid {
+    int cols;
+    int rows;
+    struct cell *** data; // DATA, triple pointer para almacenar todo
+    struct cell ** cells; // CELLS
+    int * top_restrictions;// TOP restriction, POSITIVAS
+    int * left_restrictions;// LEFT restriction, POSITIVAS
+    int * bottom_restrictions;// BOTTOM restriction, NEGATIVAS
+    int * right_restrictions;// RIGHT restriction, NEGATIVAS
+};
 
+typedef struct grid Grid;
+typedef struct cell Cell;
 
-// functions
-Grid* newGrid(int rows, int cols);
-void set_values_cell(Grid * grid, int row, int col, int dev_row, int dev_col, bool main);
-int value_in_cell(Grid * grid, int x, int y);
-bool check_around(Grid * grid, int x, int y, int cell_value);
-bool check_restrictions(Grid * grid, int x, int y, int cell_value);
-bool check_validity(Grid * grid, Cell * cell, int cell_value);
-bool is_complete(Grid * grid);
-void board_place(Grid * grid, Cell * cell, int cell_value);
-void board_remove(Grid * grid, Cell * cell);
-void free_board(Grid * grid);
+// funciones
+
+Grid* _newGrid(char* filename);
+
+void _set(Grid* grid, int row, int col, int other_half_row, int other_half_col, bool direction);
+
+bool _total_polarity(Grid* grid, int x, int y, int cell_value);
+
+bool _valid_move(Grid* grid, Cell* cell, int cell_value);
+
+int _polarity(Grid* grid, int x, int y);
+
+bool _finished(Grid* grid);
+
+void _eliminate(Grid* grid, Cell* cell);
+
+void _put(Grid* grid, Cell* cell, int cell_value);
+
+bool _sides(Grid* grid, int x, int y, int cell_value);
+void bonus(Grid* grid);
