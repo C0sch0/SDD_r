@@ -10,10 +10,23 @@
 /* Creates a ``rows by cols'' matrix with all values 0.
 Returns NULL if rows <= 0 or cols <= 0, otherwise a pointer to the new matrix. */
 
-//
 
-int magnet_counter = 0;
 
+// utilice mucho de: http://www.techiedelight.com/magnet-puzzle/
+
+
+
+Grid * _newGrid(int rows, int cols) {
+  if (rows <= 0 || cols <= 0) return NULL;
+  Grid * grid = malloc(sizeof(Grid));
+  grid -> rows = rows;
+  grid -> cols = cols;
+  grid -> data = malloc(sizeof(Cell**)*rows);
+  grid -> cells = malloc(sizeof(Cell*)*(rows * cols / 2));
+  return grid;
+}
+
+int aux = 0;
 void _set(Grid* grid, int row, int col, int other_half_row, int other_half_col, bool direction){
   Cell * mag = malloc(sizeof(Cell));
   mag->polarity = 0;
@@ -24,92 +37,9 @@ void _set(Grid* grid, int row, int col, int other_half_row, int other_half_col, 
   mag->other_half_y = col + other_half_col;
   grid->data[row][col] = mag;
   if (direction){
-    grid->cells[magnet_counter] = mag;
-    magnet_counter++;
+    grid->cells[aux] = mag;
+    aux++;
   }
-}
-
-Grid * _newGrid(char* filename){
-
-    // Leo el archivo del test
-    FILE* test_file = fopen(filename, "r");
-
-    // Leo el alto y el ancho
-    int cols, rows;
-
-    fscanf(test_file, "%d %d\n", &cols, &rows);
-
-    // Inicializo el tablero
-    Grid * grid = malloc(sizeof(Grid));
-    grid->cols = cols;
-    grid->rows = rows;
-    grid->data = malloc(sizeof(Cell ** ) * rows);
-    grid->top_restrictions = malloc(sizeof(int) * cols);
-    grid->left_restrictions = malloc(sizeof(int) * rows);
-    grid->bottom_restrictions = malloc(sizeof(int) * cols);
-    grid->right_restrictions = malloc(sizeof(int) * rows);
-    grid->cells = malloc(sizeof(Cell *) * (rows * cols / 2));
-
-    /* Leemos los numeros de las orillas de arriba y abajo*/
-  	for (int side = 0; side < 2; side++)
-  	{
-  		for (int col = 0; col < cols; col++)
-  		{
-  			int val;
-  			fscanf(test_file, "%d ", &val);
-        if (val == 0){
-          val = -2;
-        }
-        if (side == 0){
-          grid->top_restrictions[col] = val;
-        }
-        else{
-          grid->bottom_restrictions[col] = val;
-        }
-  		}
-  	}
-
-  	for (int side = 2; side < 4; side++)
-  	{
-  		for (int row = 0; row < rows; row++)
-  		{
-  			int val;
-  			fscanf(test_file, "%d ", &val);
-        if (val == 0){
-          val = -2;
-        }
-
-        if (side == 2){
-          grid->left_restrictions[row] = val;
-        }
-        else{
-          grid->right_restrictions[row] = val;
-        }
-  		}
-  	}
-
-  	for (int row= 0; row< rows; row++)
-  	{
-      grid->data[row] = malloc(sizeof(Cell *) * grid->cols);
-    }
-
-    for (int row = 0; row < rows; row++){
-  		for (int col = 0; col < cols; col++)
-  		{
-  			char type;
-  			fscanf(test_file, "%c ", &type);
-  			if (type == 'T'){
-          _set(grid, row, col, +1, 0, true);
-          _set(grid, row + 1, col,  -1, 0, false);
-        }
-  			else if (type == 'L'){
-          _set(grid, row, col, 0, + 1, true);
-          _set(grid, row, col + 1, 0, -1, false);
-        }
-  		}
-  	}
-    fclose(test_file);
-    return grid;
 }
 
 int _polarity(Grid * grid, int x, int y){

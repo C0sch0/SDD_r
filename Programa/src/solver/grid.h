@@ -29,7 +29,7 @@ typedef struct cell Cell;
 
 // funciones
 
-Grid* _newGrid(char* filename);
+Grid* _newGrid(int rows, int cols);
 
 void _set(Grid* grid, int row, int col, int other_half_row, int other_half_col, bool direction);
 
