@@ -5,6 +5,32 @@
 #include <unistd.h>
 #include "grid.h"
 
+
+
+bool solver(Grid * grid, int count)
+{
+	bool complete = is_complete(grid);
+	if (complete)
+		return true;
+	else if (!complete && count == (grid->cols * grid->rows / 2)){
+		return false;
+	}
+	Cell * actual_magnet = grid->cells[count];
+	int array[3] = {1, -1, 0};
+	for (int i = 0; i < 3; i++){
+		int cell_value = array[i];
+		if (check_validity(grid, actual_magnet, cell_value))
+			{
+			board_place(grid, actual_magnet, cell_value);
+			if (solver(grid, count+1))
+				return true;
+			board_remove(grid, actual_magnet); // backtrack
+		}
+	}
+	// no existe asignacion posible
+	return false;
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2)
@@ -64,7 +90,7 @@ int main(int argc, char *argv[])
 	}
 	// Leemos posicionamiento
 	/** Leemos las casillas del tablero para poblarlo */
-  	for (int row= 0; row< height; row++){
+  	for (int row= 0; row < height; row++){
       grid->data[row] = malloc(sizeof(Cell *) * width);}
 
     for (int row = 0; row < height; row++){
@@ -72,32 +98,24 @@ int main(int argc, char *argv[])
   			char type;
   			fscanf(input_file, "%c ", &type);
   			if (type == 'L'){
-          set_values_cell(grid, row, col, 0, 1, true);
+          set_values_cell(grid, row, col, 0, +1, true);
           set_values_cell(grid, row, col+1, 0, -1, false);
         }
 
 				else if (type == 'T'){
-					set_values_cell(grid, row, col, 1, 0, true);
+					set_values_cell(grid, row, col, +1, 0, true);
 					set_values_cell(grid, row + 1, col,  -1, 0, false);
 				}
   		}
   	}
+
 		fclose(input_file);
 
-
-	// Llamamos al backtracking
-
-
-	// Si hay solucion, se la damos al watcher y terminamos
-
-	// Ponemos un sleep para poder ver los cambios en la interfaz
-	sleep(3);
-	// Cerramos la interfaz (no eliminar esta linea)
-
-	watcher_close();
-
-	/* Free */
-	// deleteMatrix(m, height * width);
-	// retornamos OK
-	return 0;
-}
+		if(!solver(grid, 0))
+				printf("no existe solución!\n");
+			else
+				printf("solución encontrada!\n");
+		watcher_close();
+		free_board(grid);
+		return 0;
+	}
