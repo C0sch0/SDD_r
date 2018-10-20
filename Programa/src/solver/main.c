@@ -14,20 +14,39 @@ int main(int argc, char *argv[])
 	}
 
 	FILE* input_file = fopen(argv[1], "r");
-
 	if(!input_file)
 	{
 		printf("¡El archivo %s no existe!\n", argv[1]);
 		return 2;
 	}
-
 	int width;
 	int height;
 	fscanf(input_file, "%d %d", &height, &width);
-
 	watcher_load_layout(argv[1]);
 	// Abrimos la interfaz grafica y cargamos el test (No eliminar esta linea)
 	Grid* m = newGrid(height, width);
+	// initialValues(m);
+	//printMap(m);
+
+	/* Leemos el resto del archivo fila por fila */
+
+
+
+	// Leemos restricciones
+
+
+	// Leemos posicionamiento
+
+
+	// Llamamos al backtracking
+
+
+	// Si hay solucion, se la damos al watcher y terminamos
+
+
+
+
+
 
 	//////////// Ejemplos de como dibujar en la interfaz //////////////
 
