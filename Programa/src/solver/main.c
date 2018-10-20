@@ -22,20 +22,67 @@ int main(int argc, char *argv[])
 	int width;
 	int height;
 	fscanf(input_file, "%d %d", &height, &width);
+
+	// Abrimos la interfaz grafica y cargamos el test
 	watcher_load_layout(argv[1]);
-	// Abrimos la interfaz grafica y cargamos el test (No eliminar esta linea)
-	Grid* m = newGrid(height, width);
-	// initialValues(m);
-	//printMap(m);
 
-	/* Leemos el resto del archivo fila por fila */
+	// Inicializamos grid
 
+	Grid* grid = newGrid(height, width);
+
+	grid->top_restrictions = malloc(sizeof(int) * width);
+	grid->bottom_restrictions = malloc(sizeof(int) * width);
+	grid->left_restrictions = malloc(sizeof(int) * height);
+	grid->right_restrictions = malloc(sizeof(int) * height);
 
 
 	// Leemos restricciones
+	for (int side = 0; side < 2; side++){
+		for (int col = 0; col < width; col++){
+			int val;
+			fscanf(input_file, "%d ", &val);
+			if (val == 0){
+				val = -2;}
+			if (side == 0){
+				grid->top_restrictions[col] = val;}
+			else{
+				grid->bottom_restrictions[col] = val;}
+		}
+	}
 
-
+	for (int side = 2; side < 4; side++){
+		for (int row = 0; row < height; row++){
+			int val;
+			fscanf(input_file, "%d ", &val);
+			if (val == 0){
+				val = -2;}
+			if (side == 2){
+				grid->left_restrictions[row] = val;}
+			else{
+				grid->right_restrictions[row] = val;}
+		}
+	}
 	// Leemos posicionamiento
+	/** Leemos las casillas del tablero para poblarlo */
+  	for (int row= 0; row< height; row++){
+      grid->data[row] = malloc(sizeof(Cell *) * width);}
+
+    for (int row = 0; row < height; row++){
+  		for (int col = 0; col < width; col++){
+  			char type;
+  			fscanf(input_file, "%c ", &type);
+  			if (type == 'L'){
+          set_values_cell(grid, row, col, 0, 1, true);
+          set_values_cell(grid, row, col+1, 0, -1, false);
+        }
+
+				else if (type == 'T'){
+					set_values_cell(grid, row, col, 1, 0, true);
+					set_values_cell(grid, row + 1, col,  -1, 0, false);
+				}
+  		}
+  	}
+		fclose(input_file);
 
 
 	// Llamamos al backtracking
@@ -43,71 +90,10 @@ int main(int argc, char *argv[])
 
 	// Si hay solucion, se la damos al watcher y terminamos
 
-
-
-
-
-
-
-
-
-	//////////// Ejemplos de como dibujar en la interfaz //////////////
-
-	// Estos ejemplos son para el tablero del test_01.txt y son para mostrar el
-	// funcionamiento de la interfaz. Puedes experimentar con los ejemplos y luego
-	// borrarlos de tu programa
-
-	// La funcion watcher_set_magnet(row, col, vertical, positive) esta encargada
-	// de dibujar los imanes. Recibe como input la posicion  izquierda del iman
-	// si este es horizontal y la posicion superior del iman si este es vertical.
-	// Ademas recibe un bool que indica si el iman a dibujar es vertical, y un
-	// bool que indica si la posicion indicada es positiva.
-
-	// Por ejemplo: dibujamos un iman de forma horizontal tal que en en la posicion
-	// row = 2, col = 1 tiene el lado negativo, y en la posicion row = 2, col = 2
-	// tiene el lado positivo.
-	watcher_set_magnet(2, 1, false, false);
-
-	// Ahora dibujo un iman vertical en las posiciones (2, 0) -> negativo y
-	// (3, 0) -> positivo
-	watcher_set_magnet(2, 0, true, false);
-
 	// Ponemos un sleep para poder ver los cambios en la interfaz
-	sleep(5);
-
-	// La funcion watcher_clear_magnet elimina un iman apuntando su celda superior
-	// izquierda e indicando si es vertical u orizontal
-
-	// Por ejemplo, para borrar el primer iman que dibujamos indicamos la posicione
-	// y su orientacion
-	watcher_clear_magnet(2, 1, false);
-
-	// Borramos el segundo iman de la misma manera
-	watcher_clear_magnet(2, 0, true);
-
-	// Ojo que la interfaz no va a revisar si lo que estas haciendo es valido o no.
-	// Esto implica que debes revisar que tus llamadas a la interfaz sean validas
-	// para no dibujar incorrectamente y para que no se caiga.
-
-	// Un ejemplo de dibujar mal en la pantalla seria el siguiente (debes
-	// descomentarlo para verlo):
-	// watcher_set_magnet(3, 0, true, true);
-	// En el ejemplo anterior el domino se dibuja fuera de la pantalla
-
-	// En el siguiente ejemplo el programa se cae porque el domino queda fuera
-	// de las dimensiones del tablero y fuera de la interfaz.
-	// watcher_set_magnet(-4, 6, true, true);
-
-	// Ponemos un sleep para poder ver la interfaz
-	sleep(10);
-
-	// OJO: Al momento de entregar tu codigo debes comentar todos los sleep de tu codigo
-	// para que tu programa resuelva los test en menos de 10 segundos
-
-	/////////////////////// Fin ejemplos /////////////////////////////
-
+	sleep(3);
 	// Cerramos la interfaz (no eliminar esta linea)
-	fclose(input_file);
+
 	watcher_close();
 
 	/* Free */
